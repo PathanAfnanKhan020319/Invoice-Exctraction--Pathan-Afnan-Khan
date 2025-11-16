@@ -1,0 +1,88 @@
+# Configuration for Invoice Extraction Pipeline
+
+# API Settings
+apis:
+  openai_key: ${OPENAI_API_KEY}
+  anthropic_key: ${ANTHROPIC_API_KEY}
+
+# Extraction Settings
+extraction:
+  # OCR engine: "tesseract", "easyocr", or "both"
+  ocr_engine: "easyocr"
+  
+  # LLM model for extraction
+  llm_provider: "openai"  # Options: openai, anthropic, local
+  llm_model: "gpt-4-turbo-preview"
+  
+  # Confidence thresholds
+  confidence_threshold: 0.7
+  min_text_length: 10
+  
+  # Retry settings
+  max_retries: 3
+  retry_delay: 2  # seconds
+
+# Google Drive Settings
+google_drive:
+  folder_id: ${GOOGLE_DRIVE_FOLDER_ID}
+  download_path: "data/raw/"
+  supported_formats: ["pdf", "png", "jpg", "jpeg", "tiff"]
+
+# Database Settings
+database:
+  type: "sqlite"
+  path: "outputs/invoices.db"
+  echo: false  # Set to true for SQL debugging
+
+# Processing Settings
+processing:
+  batch_size: 10
+  parallel_workers: 4
+  temp_dir: "data/temp/"
+  
+# Field Extraction Settings
+fields:
+  required:
+    - invoice_number
+    - date
+    - vendor_name
+    - total_amount
+  optional:
+    - tax_amount
+    - subtotal
+    - payment_terms
+    - due_date
+    - customer_name
+    - address
+
+# Validation Rules
+validation:
+  date_formats:
+    - "%Y-%m-%d"
+    - "%m/%d/%Y"
+    - "%d/%m/%Y"
+    - "%B %d, %Y"
+    - "%d %B %Y"
+  
+  amount_patterns:
+    - "\\$?\\d+[,.]\\d{2}"
+    - "\\d+\\.\\d{2}"
+  
+  invoice_number_patterns:
+    - "INV-\\d+"
+    - "\\d{6,}"
+    - "[A-Z]{2,4}-\\d+"
+
+# Output Settings
+output:
+  save_json: true
+  save_csv: true
+  save_database: true
+  json_path: "outputs/extracted_data.json"
+  csv_path: "outputs/extracted_data.csv"
+
+# Logging
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  file: "logs/pipeline.log"
+  console: true
